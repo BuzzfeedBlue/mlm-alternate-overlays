@@ -1,13 +1,13 @@
-package com.example;
+package com.mlmalternateoverlays;
 
 import net.runelite.client.RuneLite;
 import net.runelite.client.externalplugins.ExternalPluginManager;
 
-public class ExamplePluginTest
+public class TestPlugin
 {
 	public static void main(String[] args) throws Exception
 	{
-		ExternalPluginManager.loadBuiltin(ExamplePlugin.class);
+		ExternalPluginManager.loadBuiltin(Motherlode2Plugin.class);
 		RuneLite.main(args);
 	}
 }
