@@ -26,38 +26,69 @@
  */
 package com.mlmalternateoverlays;
 
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics2D;
+import java.awt.Polygon;
+import java.awt.image.BufferedImage;
+import javax.inject.Inject;
+import net.runelite.api.Client;
+import net.runelite.api.GameObject;
+import net.runelite.api.ItemID;
+import net.runelite.api.Perspective;
+import net.runelite.api.Player;
 import net.runelite.api.Point;
-import net.runelite.api.*;
+import net.runelite.api.Skill;
+import net.runelite.api.WallObject;
 import net.runelite.api.coords.LocalPoint;
-import net.runelite.client.game.SpriteManager;
+import net.runelite.client.game.ItemManager;
 import net.runelite.client.game.SkillIconManager;
+import net.runelite.client.game.SpriteManager;
 import net.runelite.client.ui.overlay.Overlay;
 import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.OverlayUtil;
 
-import javax.inject.Inject;
-import java.awt.*;
-import java.awt.image.BufferedImage;
-
-class MotherlodeRocksOverlay2 extends Overlay
+class MotherlodeSceneOverlay extends Overlay
 {
 	private static final int MAX_DISTANCE = 2350;
+	private static final int IMAGE_Z_OFFSET = 20;
 
 	private final Client client;
-	private final Motherlode2Plugin plugin;
-	private final Motherlode2Config config;
+	private final MotherlodePlugin plugin;
+	private final MotherlodeConfig config;
+
 	private BufferedImage miningIcon;
+	private final BufferedImage hammerIcon;
 
 	@Inject
-	MotherlodeRocksOverlay2(Client client, Motherlode2Plugin plugin, Motherlode2Config config, SkillIconManager iconManager, SpriteManager spriteManager)
+	MotherlodeSceneOverlay(Client client, MotherlodePlugin plugin, MotherlodeConfig config, SkillIconManager iconManager, ItemManager itemManager, SpriteManager spriteManager)
 	{
 		setPosition(OverlayPosition.DYNAMIC);
 		setLayer(OverlayLayer.ABOVE_SCENE);
 		this.client = client;
 		this.plugin = plugin;
 		this.config = config;
+
+//		miningIcon = iconManager.getSkillImage(Skill.MINING);
+		hammerIcon = itemManager.getImage(ItemID.HAMMER);
+
 		spriteManager.getSpriteAsync(1456, 0, img -> this.miningIcon=img);
+	}
+
+	@Override
+	public Dimension render(Graphics2D graphics)
+	{
+		if ((!config.showVeins() && !config.showRockFalls()) || !plugin.isInMlm())
+		{
+			return null;
+		}
+
+		Player local = client.getLocalPlayer();
+
+		renderTiles(graphics, local);
+
+		return null;
 	}
 
 	private void renderTiles(Graphics2D graphics, Player local)
@@ -80,7 +111,29 @@ class MotherlodeRocksOverlay2 extends Overlay
 			}
 		}
 
+		if (config.showRockFalls())
+		{
+			for (GameObject rock : plugin.getRocks())
+			{
+				LocalPoint location = rock.getLocalLocation();
+				if (localLocation.distanceTo(location) <= MAX_DISTANCE)
+				{
+					renderRock(graphics, rock);
+				}
+			}
+		}
 
+		if (config.showBrokenStruts())
+		{
+			for (GameObject brokenStrut : plugin.getBrokenStruts())
+			{
+				LocalPoint location = brokenStrut.getLocalLocation();
+				if (localLocation.distanceTo(location) <= MAX_DISTANCE)
+				{
+					renderBrokenStrut(graphics, brokenStrut);
+				}
+			}
+		}
 	}
 
 	private void renderVein(Graphics2D graphics, WallObject vein)
@@ -103,18 +156,14 @@ class MotherlodeRocksOverlay2 extends Overlay
 		}
 	}
 
-	@Override
-	public Dimension render(Graphics2D graphics)
+	private void renderBrokenStrut(Graphics2D graphics, GameObject brokenStrut)
 	{
-		if ((!config.showVeins()|| !plugin.isInMlm()))
+		Polygon poly = Perspective.getCanvasTilePoly(client, brokenStrut.getLocalLocation());
+
+		if (poly != null)
 		{
-			return null;
+			OverlayUtil.renderPolygon(graphics, poly, Color.red);
+			OverlayUtil.renderImageLocation(client, graphics, brokenStrut.getLocalLocation(), hammerIcon, IMAGE_Z_OFFSET);
 		}
-
-		Player local = client.getLocalPlayer();
-
-		renderTiles(graphics, local);
-
-		return null;
 	}
 }

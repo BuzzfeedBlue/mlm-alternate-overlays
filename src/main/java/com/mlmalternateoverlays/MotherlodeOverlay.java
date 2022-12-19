@@ -32,59 +32,109 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
 import javax.inject.Inject;
+import static net.runelite.api.AnimationID.MINING_MOTHERLODE_3A;
 import static net.runelite.api.AnimationID.MINING_MOTHERLODE_ADAMANT;
 import static net.runelite.api.AnimationID.MINING_MOTHERLODE_BLACK;
 import static net.runelite.api.AnimationID.MINING_MOTHERLODE_BRONZE;
 import static net.runelite.api.AnimationID.MINING_MOTHERLODE_CRYSTAL;
 import static net.runelite.api.AnimationID.MINING_MOTHERLODE_DRAGON;
 import static net.runelite.api.AnimationID.MINING_MOTHERLODE_DRAGON_OR;
+import static net.runelite.api.AnimationID.MINING_MOTHERLODE_DRAGON_OR_TRAILBLAZER;
 import static net.runelite.api.AnimationID.MINING_MOTHERLODE_DRAGON_UPGRADED;
+import static net.runelite.api.AnimationID.MINING_MOTHERLODE_GILDED;
 import static net.runelite.api.AnimationID.MINING_MOTHERLODE_INFERNAL;
 import static net.runelite.api.AnimationID.MINING_MOTHERLODE_IRON;
 import static net.runelite.api.AnimationID.MINING_MOTHERLODE_MITHRIL;
 import static net.runelite.api.AnimationID.MINING_MOTHERLODE_RUNE;
 import static net.runelite.api.AnimationID.MINING_MOTHERLODE_STEEL;
+import static net.runelite.api.AnimationID.MINING_MOTHERLODE_TRAILBLAZER;
 import net.runelite.api.Client;
 import static net.runelite.api.MenuAction.RUNELITE_OVERLAY;
-
-import net.runelite.client.plugins.motherlode.MotherlodeConfig;
-import net.runelite.client.plugins.motherlode.MotherlodePlugin;
-import net.runelite.client.plugins.motherlode.MotherlodeSession;
-import net.runelite.client.ui.overlay.Overlay;
-import net.runelite.client.ui.overlay.OverlayMenuEntry;
+import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.LineComponent;
-import net.runelite.client.ui.overlay.components.PanelComponent;
 import net.runelite.client.ui.overlay.components.TitleComponent;
 
-class MotherlodeOverlay2 extends Overlay
+class MotherlodeOverlay extends OverlayPanel
 {
 	private static final Set<Integer> MINING_ANIMATION_IDS = ImmutableSet.of(
 		MINING_MOTHERLODE_BRONZE, MINING_MOTHERLODE_IRON, MINING_MOTHERLODE_STEEL,
 		MINING_MOTHERLODE_BLACK, MINING_MOTHERLODE_MITHRIL, MINING_MOTHERLODE_ADAMANT,
-		MINING_MOTHERLODE_RUNE, MINING_MOTHERLODE_DRAGON, MINING_MOTHERLODE_DRAGON_UPGRADED,
-		MINING_MOTHERLODE_DRAGON_OR, MINING_MOTHERLODE_INFERNAL, MINING_MOTHERLODE_CRYSTAL
+		MINING_MOTHERLODE_RUNE, MINING_MOTHERLODE_GILDED, MINING_MOTHERLODE_DRAGON,
+		MINING_MOTHERLODE_DRAGON_UPGRADED, MINING_MOTHERLODE_DRAGON_OR, MINING_MOTHERLODE_DRAGON_OR_TRAILBLAZER,
+		MINING_MOTHERLODE_INFERNAL, MINING_MOTHERLODE_3A, MINING_MOTHERLODE_CRYSTAL,
+		MINING_MOTHERLODE_TRAILBLAZER
 	);
-	static final String MINING_RESET = "Reset";
+	private static final String MINING_RESET = "Reset";
 
 	private final Client client;
-	private final com.mlmalternateoverlays.Motherlode2Plugin plugin;
-	private final com.mlmalternateoverlays.Motherlode2Config config;
-	private final PanelComponent panelComponent = new PanelComponent();
+	private final MotherlodePlugin plugin;
+	private final MotherlodeSession motherlodeSession;
+	private final MotherlodeConfig config;
 
 	@Inject
-	MotherlodeOverlay2(Client client, Motherlode2Plugin plugin, Motherlode2Config config)
+	MotherlodeOverlay(Client client, MotherlodePlugin plugin, MotherlodeSession motherlodeSession, MotherlodeConfig config)
 	{
 		super(plugin);
 		setPosition(OverlayPosition.TOP_LEFT);
 		this.client = client;
 		this.plugin = plugin;
+		this.motherlodeSession = motherlodeSession;
 		this.config = config;
-		getMenuEntries().add(new OverlayMenuEntry(RUNELITE_OVERLAY, MINING_RESET, "Motherlode mine overlay"));
+		addMenuEntry(RUNELITE_OVERLAY, MINING_RESET, "Motherlode mine overlay", e -> plugin.reset());
 	}
 
 	@Override
-	public Dimension render(Graphics2D graphics2D) {
-		return null;
+	public Dimension render(Graphics2D graphics)
+	{
+		if (!plugin.isInMlm() || !config.showMiningStats())
+		{
+			return null;
+		}
+
+		MotherlodeSession session = motherlodeSession;
+
+		if (session.getLastPayDirtMined() == null)
+		{
+			return null;
+		}
+
+		Duration statTimeout = Duration.ofMinutes(config.statTimeout());
+		Duration sinceLastPayDirt = Duration.between(session.getLastPayDirtMined(), Instant.now());
+
+		if (sinceLastPayDirt.compareTo(statTimeout) >= 0)
+		{
+			return null;
+		}
+
+		if (config.showMiningState())
+		{
+			if (MINING_ANIMATION_IDS.contains(client.getLocalPlayer().getAnimation()))
+			{
+				panelComponent.getChildren().add(TitleComponent.builder()
+					.text("Mining")
+					.color(Color.GREEN)
+					.build());
+			}
+			else
+			{
+				panelComponent.getChildren().add(TitleComponent.builder()
+					.text("NOT mining")
+					.color(Color.RED)
+					.build());
+			}
+		}
+
+		panelComponent.getChildren().add(LineComponent.builder()
+			.left("Pay-dirt mined:")
+			.right(Integer.toString(session.getTotalMined()))
+			.build());
+
+		panelComponent.getChildren().add(LineComponent.builder()
+			.left("Pay-dirt/hr:")
+			.right(session.getRecentMined() > 2 ? Integer.toString(session.getPerHour()) : "")
+			.build());
+
+		return super.render(graphics);
 	}
 }
