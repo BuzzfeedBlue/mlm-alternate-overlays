@@ -31,7 +31,7 @@ import net.runelite.client.config.ConfigItem;
 import net.runelite.client.config.Units;
 
 @ConfigGroup("motherlode2")
-public interface MotherlodeConfig extends Config
+public interface MotherlodeAltConfig extends Config
 {
 	@ConfigItem(
 		keyName = "showVeins",

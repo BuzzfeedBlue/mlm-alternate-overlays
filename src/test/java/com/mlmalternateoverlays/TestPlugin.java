@@ -7,7 +7,7 @@ public class TestPlugin
 {
 	public static void main(String[] args) throws Exception
 	{
-		ExternalPluginManager.loadBuiltin(Motherlode2Plugin.class);
+		ExternalPluginManager.loadBuiltin(MotherlodeAltPlugin.class);
 		RuneLite.main(args);
 	}
 }

@@ -41,15 +41,15 @@ import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.ComponentConstants;
 import net.runelite.client.ui.overlay.components.LineComponent;
 
-class MotherlodeSackOverlay extends OverlayPanel
+class MotherlodeAltSackOverlay extends OverlayPanel
 {
 	private static final Color DANGER = new Color(150, 0, 0, 150);
 	private final Client client;
-	private final MotherlodeConfig config;
-	private final MotherlodePlugin plugin;
+	private final MotherlodeAltConfig config;
+	private final MotherlodeAltPlugin plugin;
 
 	@Inject
-	MotherlodeSackOverlay(Client client, MotherlodeConfig config, MotherlodePlugin plugin)
+	MotherlodeAltSackOverlay(Client client, MotherlodeAltConfig config, MotherlodeAltPlugin plugin)
 	{
 		super(plugin);
 		setPosition(OverlayPosition.TOP_LEFT);

@@ -38,7 +38,6 @@ import net.runelite.api.ItemID;
 import net.runelite.api.Perspective;
 import net.runelite.api.Player;
 import net.runelite.api.Point;
-import net.runelite.api.Skill;
 import net.runelite.api.WallObject;
 import net.runelite.api.coords.LocalPoint;
 import net.runelite.client.game.ItemManager;
@@ -49,20 +48,20 @@ import net.runelite.client.ui.overlay.OverlayLayer;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.OverlayUtil;
 
-class MotherlodeSceneOverlay extends Overlay
+class MotherlodeAltSceneOverlay extends Overlay
 {
 	private static final int MAX_DISTANCE = 2350;
 	private static final int IMAGE_Z_OFFSET = 20;
 
 	private final Client client;
-	private final MotherlodePlugin plugin;
-	private final MotherlodeConfig config;
+	private final MotherlodeAltPlugin plugin;
+	private final MotherlodeAltConfig config;
 
 	private BufferedImage miningIcon;
 	private final BufferedImage hammerIcon;
 
 	@Inject
-	MotherlodeSceneOverlay(Client client, MotherlodePlugin plugin, MotherlodeConfig config, SkillIconManager iconManager, ItemManager itemManager, SpriteManager spriteManager)
+	MotherlodeAltSceneOverlay(Client client, MotherlodeAltPlugin plugin, MotherlodeAltConfig config, SkillIconManager iconManager, ItemManager itemManager, SpriteManager spriteManager)
 	{
 		setPosition(OverlayPosition.DYNAMIC);
 		setLayer(OverlayLayer.ABOVE_SCENE);

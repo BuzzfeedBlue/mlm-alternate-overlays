@@ -55,7 +55,7 @@ import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.LineComponent;
 import net.runelite.client.ui.overlay.components.TitleComponent;
 
-class MotherlodeOverlay extends OverlayPanel
+class MotherlodeAltOverlay extends OverlayPanel
 {
 	private static final Set<Integer> MINING_ANIMATION_IDS = ImmutableSet.of(
 		MINING_MOTHERLODE_BRONZE, MINING_MOTHERLODE_IRON, MINING_MOTHERLODE_STEEL,
@@ -68,12 +68,12 @@ class MotherlodeOverlay extends OverlayPanel
 	private static final String MINING_RESET = "Reset";
 
 	private final Client client;
-	private final MotherlodePlugin plugin;
-	private final MotherlodeSession motherlodeSession;
-	private final MotherlodeConfig config;
+	private final MotherlodeAltPlugin plugin;
+	private final MotherlodeAltSession motherlodeSession;
+	private final MotherlodeAltConfig config;
 
 	@Inject
-	MotherlodeOverlay(Client client, MotherlodePlugin plugin, MotherlodeSession motherlodeSession, MotherlodeConfig config)
+	MotherlodeAltOverlay(Client client, MotherlodeAltPlugin plugin, MotherlodeAltSession motherlodeSession, MotherlodeAltConfig config)
 	{
 		super(plugin);
 		setPosition(OverlayPosition.TOP_LEFT);
@@ -92,7 +92,7 @@ class MotherlodeOverlay extends OverlayPanel
 			return null;
 		}
 
-		MotherlodeSession session = motherlodeSession;
+		MotherlodeAltSession session = motherlodeSession;
 
 		if (session.getLastPayDirtMined() == null)
 		{

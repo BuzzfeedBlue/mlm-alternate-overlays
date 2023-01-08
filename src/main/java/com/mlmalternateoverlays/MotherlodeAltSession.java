@@ -34,7 +34,7 @@ import net.runelite.api.ItemID;
 
 @Slf4j
 @Singleton
-public class MotherlodeSession
+public class MotherlodeAltSession
 {
 	private static final Duration HOUR = Duration.ofHours(1);
 

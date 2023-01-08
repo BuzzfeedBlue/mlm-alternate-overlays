@@ -83,7 +83,7 @@ import net.runelite.client.ui.overlay.OverlayManager;
 	tags = {"pay", "dirt", "mining", "mlm", "skilling", "overlay"},
 	enabledByDefault = false
 )
-public class MotherlodePlugin extends Plugin
+public class MotherlodeAltPlugin extends Plugin
 {
 	private static final Set<Integer> MOTHERLODE_MAP_REGIONS = ImmutableSet.of(14679, 14680, 14681, 14935, 14936, 14937, 15191, 15192, 15193);
 	private static final Set<Integer> MINE_SPOTS = ImmutableSet.of(ORE_VEIN_26661, ORE_VEIN_26662, ORE_VEIN_26663, ORE_VEIN_26664);
@@ -102,22 +102,22 @@ public class MotherlodePlugin extends Plugin
 	private OverlayManager overlayManager;
 
 	@Inject
-	private MotherlodeOverlay overlay;
+	private MotherlodeAltOverlay overlay;
 
 	@Inject
-	private MotherlodeSceneOverlay sceneOverlay;
+	private MotherlodeAltSceneOverlay sceneOverlay;
 
 	@Inject
-	private MotherlodeSackOverlay motherlodeSackOverlay;
+	private MotherlodeAltSackOverlay motherlodeAltSackOverlay;
 
 	@Inject
-	private MotherlodeGemOverlay motherlodeGemOverlay;
+	private MotherlodeAltGemOverlay motherlodeAltGemOverlay;
 
 	@Inject
-	private MotherlodeOreOverlay motherlodeOreOverlay;
+	private MotherlodeAltOreOverlay motherlodeAltOreOverlay;
 
 	@Inject
-	private MotherlodeConfig config;
+	private MotherlodeAltConfig config;
 
 	@Inject
 	private Client client;
@@ -136,7 +136,7 @@ public class MotherlodePlugin extends Plugin
 	private Integer depositsLeft;
 
 	@Inject
-	private MotherlodeSession session;
+	private MotherlodeAltSession session;
 	private boolean shouldUpdateOres;
 	private Multiset<Integer> inventorySnapshot;
 
@@ -148,9 +148,9 @@ public class MotherlodePlugin extends Plugin
 	private final Set<GameObject> brokenStruts = new HashSet<>();
 
 	@Provides
-	MotherlodeConfig getConfig(ConfigManager configManager)
+	MotherlodeAltConfig getConfig(ConfigManager configManager)
 	{
-		return configManager.getConfig(MotherlodeConfig.class);
+		return configManager.getConfig(MotherlodeAltConfig.class);
 	}
 
 	@Override
@@ -158,9 +158,9 @@ public class MotherlodePlugin extends Plugin
 	{
 		overlayManager.add(overlay);
 		overlayManager.add(sceneOverlay);
-		overlayManager.add(motherlodeGemOverlay);
-		overlayManager.add(motherlodeOreOverlay);
-		overlayManager.add(motherlodeSackOverlay);
+		overlayManager.add(motherlodeAltGemOverlay);
+		overlayManager.add(motherlodeAltOreOverlay);
+		overlayManager.add(motherlodeAltSackOverlay);
 
 		inMlm = checkInMlm();
 
@@ -175,9 +175,9 @@ public class MotherlodePlugin extends Plugin
 	{
 		overlayManager.remove(overlay);
 		overlayManager.remove(sceneOverlay);
-		overlayManager.remove(motherlodeGemOverlay);
-		overlayManager.remove(motherlodeOreOverlay);
-		overlayManager.remove(motherlodeSackOverlay);
+		overlayManager.remove(motherlodeAltGemOverlay);
+		overlayManager.remove(motherlodeAltOreOverlay);
+		overlayManager.remove(motherlodeAltSackOverlay);
 		veins.clear();
 		rocks.clear();
 		brokenStruts.clear();

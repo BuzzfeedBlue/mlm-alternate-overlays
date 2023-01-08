@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Lars <lars.oernlo@gmail.com>
+ * Copyright (c) 2019, Sir Girion <https://github.com/sirgirion>
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,13 +26,9 @@ package com.mlmalternateoverlays;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.time.Duration;
-import java.time.Instant;
 import javax.inject.Inject;
 import net.runelite.api.ItemID;
-import static net.runelite.api.MenuAction.RUNELITE_OVERLAY_CONFIG;
 import net.runelite.client.game.ItemManager;
-import static net.runelite.client.ui.overlay.OverlayManager.OPTION_CONFIGURE;
 import net.runelite.client.ui.overlay.OverlayPanel;
 import net.runelite.client.ui.overlay.OverlayPosition;
 import net.runelite.client.ui.overlay.components.ComponentOrientation;
@@ -40,101 +36,119 @@ import net.runelite.client.ui.overlay.components.ImageComponent;
 import net.runelite.client.ui.overlay.components.LineComponent;
 import net.runelite.client.ui.overlay.components.TitleComponent;
 
-public class MotherlodeGemOverlay extends OverlayPanel
+public class MotherlodeAltOreOverlay extends OverlayPanel
 {
-	private final MotherlodePlugin plugin;
-	private final MotherlodeSession motherlodeSession;
-	private final MotherlodeConfig config;
+	private final MotherlodeAltPlugin plugin;
+	private final MotherlodeAltSession motherlodeSession;
+	private final MotherlodeAltConfig config;
 	private final ItemManager itemManager;
 
 	@Inject
-	MotherlodeGemOverlay(MotherlodePlugin plugin, MotherlodeSession motherlodeSession, MotherlodeConfig config, ItemManager itemManager)
+	MotherlodeAltOreOverlay(MotherlodeAltPlugin plugin, MotherlodeAltSession motherlodeSession, MotherlodeAltConfig config, ItemManager itemManager)
 	{
-		super(plugin);
 		setPosition(OverlayPosition.TOP_LEFT);
 		this.plugin = plugin;
 		this.motherlodeSession = motherlodeSession;
 		this.config = config;
 		this.itemManager = itemManager;
-		addMenuEntry(RUNELITE_OVERLAY_CONFIG, OPTION_CONFIGURE, "Gem overlay");
 	}
 
 	@Override
 	public Dimension render(Graphics2D graphics)
 	{
-		MotherlodeSession session = motherlodeSession;
-
-		if (session.getLastGemFound() == null || !plugin.isInMlm() || !config.showGemsFound())
+		if (!plugin.isInMlm() || !config.showOresFound())
 		{
 			return null;
 		}
 
-		Duration statTimeout = Duration.ofMinutes(config.statTimeout());
-		Duration sinceLastGem = Duration.between(session.getLastGemFound(), Instant.now());
+		MotherlodeAltSession session = motherlodeSession;
 
-		if (sinceLastGem.compareTo(statTimeout) >= 0)
+		int nuggetsFound = session.getNuggetsFound();
+		int coalFound = session.getCoalFound();
+		int goldFound = session.getGoldFound();
+		int mithrilFound = session.getMithrilFound();
+		int adamantiteFound = session.getAdamantiteFound();
+		int runiteFound = session.getRuniteFound();
+
+		// If no ores have even been collected, don't bother showing anything
+		if (nuggetsFound == 0 && coalFound == 0 && goldFound == 0 && mithrilFound == 0
+			&& adamantiteFound == 0 && runiteFound == 0)
 		{
 			return null;
 		}
-
-		int diamondsFound = session.getDiamondsFound();
-		int rubiesFound = session.getRubiesFound();
-		int emeraldsFound = session.getEmeraldsFound();
-		int sapphiresFound = session.getSapphiresFound();
 
 		if (config.showLootIcons())
 		{
 			panelComponent.setOrientation(ComponentOrientation.HORIZONTAL);
-			if (diamondsFound > 0)
+			if (nuggetsFound > 0)
 			{
-				panelComponent.getChildren().add(new ImageComponent(itemManager.getImage(ItemID.UNCUT_DIAMOND, diamondsFound, true)));
+				panelComponent.getChildren().add(new ImageComponent(itemManager.getImage(ItemID.GOLDEN_NUGGET, nuggetsFound, true)));
 			}
-			if (rubiesFound > 0)
+			if (coalFound > 0)
 			{
-				panelComponent.getChildren().add(new ImageComponent(itemManager.getImage(ItemID.UNCUT_RUBY, rubiesFound, true)));
+				panelComponent.getChildren().add(new ImageComponent(itemManager.getImage(ItemID.COAL, coalFound, true)));
 			}
-			if (emeraldsFound > 0)
+			if (goldFound > 0)
 			{
-				panelComponent.getChildren().add(new ImageComponent(itemManager.getImage(ItemID.UNCUT_EMERALD, emeraldsFound, true)));
+				panelComponent.getChildren().add(new ImageComponent(itemManager.getImage(ItemID.GOLD_ORE, goldFound, true)));
 			}
-			if (sapphiresFound > 0)
+			if (mithrilFound > 0)
 			{
-				panelComponent.getChildren().add(new ImageComponent(itemManager.getImage(ItemID.UNCUT_SAPPHIRE, sapphiresFound, true)));
+				panelComponent.getChildren().add(new ImageComponent(itemManager.getImage(ItemID.MITHRIL_ORE, mithrilFound, true)));
+			}
+			if (adamantiteFound > 0)
+			{
+				panelComponent.getChildren().add(new ImageComponent(itemManager.getImage(ItemID.ADAMANTITE_ORE, adamantiteFound, true)));
+			}
+			if (runiteFound > 0)
+			{
+				panelComponent.getChildren().add(new ImageComponent(itemManager.getImage(ItemID.RUNITE_ORE, runiteFound, true)));
 			}
 		}
 		else
 		{
 			panelComponent.setOrientation(ComponentOrientation.VERTICAL);
-			panelComponent.getChildren().add(TitleComponent.builder().text("Gems found").build());
-			if (diamondsFound > 0)
+			panelComponent.getChildren().add(TitleComponent.builder().text("Ores found").build());
+			if (nuggetsFound > 0)
 			{
 				panelComponent.getChildren().add(LineComponent.builder()
-					.left("Diamonds:")
-					.right(Integer.toString(diamondsFound))
+					.left("Nuggets:")
+					.right(Integer.toString(nuggetsFound))
 					.build());
 			}
-
-			if (rubiesFound > 0)
+			if (coalFound > 0)
 			{
 				panelComponent.getChildren().add(LineComponent.builder()
-					.left("Rubies:")
-					.right(Integer.toString(rubiesFound))
+					.left("Coal:")
+					.right(Integer.toString(coalFound))
 					.build());
 			}
-
-			if (emeraldsFound > 0)
+			if (goldFound > 0)
 			{
 				panelComponent.getChildren().add(LineComponent.builder()
-					.left("Emeralds:")
-					.right(Integer.toString(emeraldsFound))
+					.left("Gold:")
+					.right(Integer.toString(goldFound))
 					.build());
 			}
-
-			if (sapphiresFound > 0)
+			if (mithrilFound > 0)
 			{
 				panelComponent.getChildren().add(LineComponent.builder()
-					.left("Sapphires:")
-					.right(Integer.toString(sapphiresFound))
+					.left("Mithril:")
+					.right(Integer.toString(mithrilFound))
+					.build());
+			}
+			if (adamantiteFound > 0)
+			{
+				panelComponent.getChildren().add(LineComponent.builder()
+					.left("Adamantite:")
+					.right(Integer.toString(adamantiteFound))
+					.build());
+			}
+			if (runiteFound > 0)
+			{
+				panelComponent.getChildren().add(LineComponent.builder()
+					.left("Runite:")
+					.right(Integer.toString(runiteFound))
 					.build());
 			}
 		}
